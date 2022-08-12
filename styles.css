@@ -1,0 +1,42 @@
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.calc-container {
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 500px;
+  padding: 5px;
+}
+
+.calc-screen,
+.calc-btn-container {
+  width: 100%;
+}
+
+.calc-screen {
+  background-color: green;
+  height: 200px;
+}
+
+.calc-btn-container {
+  height: 100%;
+  display: flex;
+}
+
+.calc-num-btn-container {
+  background-color: red;
+  width: 75%;
+  height: 100%;
+}
+
+.calc-op-btn-container {
+  background-color: blue;
+  width: 25%;
+}
