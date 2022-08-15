@@ -105,12 +105,14 @@ button:active {
   color: white;
 }
 
-.num-btn {
+.num-btn,
+.decimal-btn {
   background-color: gray;
   transition: background-color 0.3s ease;
 }
 
-.num-btn:hover {
+.num-btn:hover,
+.decimal-btn:hover {
   background-color: lightgrey;
   color: black;
 }

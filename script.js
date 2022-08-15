@@ -3,10 +3,12 @@ const numBtns = document.querySelectorAll(".num-btn");
 const operatorBtns = document.querySelectorAll(".op-btn");
 const clearBtn = document.querySelector(".clear-btn");
 const deleteBtn = document.querySelector(".delete-btn");
+const decimalBtn = document.querySelector(".decimal-btn");
 const evaluateBtn = document.querySelector(".eval-btn");
 const maxCharacters = 9;
 let nxtNumClear = false;
 let canOperate = false;
+let errorState = false;
 
 let currentData = {
   firstValue: "",
@@ -16,26 +18,29 @@ let currentData = {
 
 numBtns.forEach((button) => {
   button.addEventListener("click", () => {
+    if (errorState) return;
     if (nxtNumClear) {
       clearDisplay();
-      addToDisplay(button.value);
+      addNumToDisplay(button.value);
       nxtNumClear = false;
     } else {
-      addToDisplay(button.value);
+      addNumToDisplay(button.value);
     }
   });
 });
 
 operatorBtns.forEach((button) => {
   button.addEventListener("click", (e) => {
-    console.log("Operator clicked!");
-    storeOperationData(e);
-    canOperate = operationCheck();
-    console.log(canOperate);
+    if (errorState) return;
+
+    storeNumberData();
+    storeOperatorData(e);
   });
 });
 
 evaluateBtn.addEventListener("click", () => {
+  storeNumberData();
+  canOperate = operationCheck();
   if (canOperate) {
     let result = operate(
       currentData.operator,
@@ -43,14 +48,23 @@ evaluateBtn.addEventListener("click", () => {
       currentData.secondValue
     );
     resultDisplay(result);
+    resetOperationData(result);
+    canOperate = false;
   }
 });
 
-clearBtn.addEventListener("click", resetData);
+decimalBtn.addEventListener("click", (e) => {
+  addDecimalToDisplay(e);
+});
 
-deleteBtn.addEventListener("click", deleteFromDisplay);
+clearBtn.addEventListener("click", resetState);
 
-function addToDisplay(value) {
+deleteBtn.addEventListener("click", () => {
+  if (errorState) return;
+  deleteFromDisplay();
+});
+
+function addNumToDisplay(value) {
   let currentValue = currentDisplay.textContent;
   if (currentValue.length >= maxCharacters) {
     return;
@@ -63,11 +77,26 @@ function addToDisplay(value) {
   }
 }
 
+function addDecimalToDisplay(e) {
+  let currentValue = currentDisplay.textContent;
+  let value = e.target.value;
+  if (currentValue.includes(value)) {
+    return;
+  } else if (currentValue === "0") {
+    return;
+  } else {
+    currentDisplay.textContent += value;
+  }
+}
+
 function deleteFromDisplay() {
   let currentValue = currentDisplay.textContent;
   let newValue = currentValue.slice(0, -1);
+  console.log(newValue);
   if (newValue == "") {
     newValue = "0";
+  } else if (newValue.length == 2 && newValue[1] == ".") {
+    newValue = newValue[0];
   }
   currentDisplay.textContent = newValue;
 }
@@ -76,28 +105,32 @@ function clearDisplay() {
   currentDisplay.textContent = "";
 }
 
-function resetData() {
+function resetState() {
+  let result = "";
   currentDisplay.textContent = "0";
-  currentData.firstValue = "";
-  currentData.secondValue = "";
-  currentData.operator = "";
+  errorState = false;
+  resetOperationData(result);
 }
 
 function resultDisplay(result) {
   currentDisplay.textContent = result;
 }
 
-function storeOperationData(event) {
+function storeNumberData() {
   if (currentData.firstValue === "") {
     currentData.firstValue = currentDisplay.textContent;
-    currentData.operator = event.target.value;
-    console.log("First Number: " + currentData.firstValue);
-    console.log("Operator: " + currentData.operator);
   } else {
     currentData.secondValue = currentDisplay.textContent;
-    console.log("Second Number: " + currentData.secondValue);
   }
+
   nxtNumClear = true;
+  console.log("Num1: " + currentData.firstValue);
+  console.log("Num2: " + currentData.secondValue);
+}
+
+function storeOperatorData(event) {
+  if (currentData.operator === "") currentData.operator = event.target.value;
+  console.log("Operation: " + currentData.operator);
 }
 
 function operationCheck() {
@@ -124,7 +157,20 @@ function operate(operator, num1, num2) {
       result = divide(num1, num2);
       break;
   }
-  return result.toString();
+  result = result.toString();
+  if (result.length > maxCharacters) {
+    errorState = true;
+    return "ERROR";
+  } else {
+    return result;
+  }
+}
+
+function resetOperationData(result) {
+  currentData.firstValue = result;
+  currentData.secondValue = "";
+  currentData.operator = "";
+  console.log(currentData);
 }
 
 function add(num1, num2) {
@@ -140,5 +186,10 @@ function multiply(num1, num2) {
 }
 
 function divide(num1, num2) {
-  return num1 / num2;
+  if (num2 === 0) {
+    errorState = true;
+    return "ERROR";
+  } else {
+    return (num1 / num2).toFixed(1);
+  }
 }
