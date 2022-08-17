@@ -126,14 +126,13 @@ button:active {
   padding-left: 15px;
 }
 
-.op-btn,
-.eval-btn {
+.op-btn {
   background-color: orange;
   transition: background-color 0.3s ease;
 }
 
 .op-btn:hover,
-.eval-btn:hover {
+.op-btn:focus {
   background-color: lightgoldenrodyellow;
   color: black;
 }

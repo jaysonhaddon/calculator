@@ -34,23 +34,20 @@ operatorBtns.forEach((button) => {
     if (errorState) return;
 
     storeNumberData();
-    storeOperatorData(e);
-  });
-});
+    let newOperator = storeOperatorData(e);
+    canOperate = operationCheck();
 
-evaluateBtn.addEventListener("click", () => {
-  storeNumberData();
-  canOperate = operationCheck();
-  if (canOperate) {
-    let result = operate(
-      currentData.operator,
-      currentData.firstValue,
-      currentData.secondValue
-    );
-    resultDisplay(result);
-    resetOperationData(result);
-    canOperate = false;
-  }
+    if (canOperate) {
+      let result = operate(
+        currentData.operator,
+        currentData.firstValue,
+        currentData.secondValue
+      );
+      resultDisplay(result);
+      resetOperationData(result, newOperator);
+      canOperate = false;
+    }
+  });
 });
 
 decimalBtn.addEventListener("click", (e) => {
@@ -107,9 +104,10 @@ function clearDisplay() {
 
 function resetState() {
   let result = "";
+  let newOperator = "";
   currentDisplay.textContent = "0";
   errorState = false;
-  resetOperationData(result);
+  resetOperationData(result, newOperator);
 }
 
 function resultDisplay(result) {
@@ -117,24 +115,29 @@ function resultDisplay(result) {
 }
 
 function storeNumberData() {
-  if (currentData.firstValue === "") {
-    currentData.firstValue = currentDisplay.textContent;
-  } else {
-    currentData.secondValue = currentDisplay.textContent;
+  if (currentData.operator !== "=") {
+    if (currentData.firstValue === "") {
+      currentData.firstValue = currentDisplay.textContent;
+    } else {
+      currentData.secondValue = currentDisplay.textContent;
+    }
   }
 
   nxtNumClear = true;
-  console.log("Num1: " + currentData.firstValue);
-  console.log("Num2: " + currentData.secondValue);
 }
 
 function storeOperatorData(event) {
-  if (currentData.operator === "") currentData.operator = event.target.value;
-  console.log("Operation: " + currentData.operator);
+  let newOperator = event.target.value;
+  if (currentData.operator === "" || currentData.operator === "=")
+    currentData.operator = newOperator;
+
+  return newOperator;
 }
 
 function operationCheck() {
-  return currentData.firstValue !== "" && currentData.secondValue !== ""
+  return currentData.firstValue !== "" &&
+    currentData.secondValue !== "" &&
+    currentData.operator !== "="
     ? true
     : false;
 }
@@ -166,11 +169,10 @@ function operate(operator, num1, num2) {
   }
 }
 
-function resetOperationData(result) {
+function resetOperationData(result, newOperator) {
   currentData.firstValue = result;
   currentData.secondValue = "";
-  currentData.operator = "";
-  console.log(currentData);
+  currentData.operator = newOperator;
 }
 
 function add(num1, num2) {
