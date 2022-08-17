@@ -4,7 +4,6 @@ const operatorBtns = document.querySelectorAll(".op-btn");
 const clearBtn = document.querySelector(".clear-btn");
 const deleteBtn = document.querySelector(".delete-btn");
 const decimalBtn = document.querySelector(".decimal-btn");
-const evaluateBtn = document.querySelector(".eval-btn");
 const maxCharacters = 9;
 let nxtNumClear = false;
 let canOperate = false;
@@ -19,6 +18,11 @@ let currentData = {
 numBtns.forEach((button) => {
   button.addEventListener("click", () => {
     if (errorState) return;
+
+    if (currentData.operator === "=") {
+      resetState();
+    }
+
     if (nxtNumClear) {
       clearDisplay();
       addNumToDisplay(button.value);
@@ -51,13 +55,22 @@ operatorBtns.forEach((button) => {
 });
 
 decimalBtn.addEventListener("click", (e) => {
-  addDecimalToDisplay(e);
+  if (errorState) return;
+
+  if (nxtNumClear) {
+    clearDisplay();
+    addDecimalToDisplay(e);
+    nxtNumClear = false;
+  } else {
+    addDecimalToDisplay(e);
+  }
 });
 
 clearBtn.addEventListener("click", resetState);
 
 deleteBtn.addEventListener("click", () => {
   if (errorState) return;
+
   deleteFromDisplay();
 });
 
@@ -67,7 +80,7 @@ function addNumToDisplay(value) {
     return;
   }
 
-  if (currentValue == 0) {
+  if (currentValue === "0") {
     currentDisplay.textContent = value;
   } else {
     currentDisplay.textContent += value;
@@ -79,8 +92,6 @@ function addDecimalToDisplay(e) {
   let value = e.target.value;
   if (currentValue.includes(value)) {
     return;
-  } else if (currentValue === "0") {
-    return;
   } else {
     currentDisplay.textContent += value;
   }
@@ -89,7 +100,6 @@ function addDecimalToDisplay(e) {
 function deleteFromDisplay() {
   let currentValue = currentDisplay.textContent;
   let newValue = currentValue.slice(0, -1);
-  console.log(newValue);
   if (newValue == "") {
     newValue = "0";
   } else if (newValue.length == 2 && newValue[1] == ".") {
@@ -122,7 +132,6 @@ function storeNumberData() {
       currentData.secondValue = currentDisplay.textContent;
     }
   }
-
   nxtNumClear = true;
 }
 
@@ -192,6 +201,10 @@ function divide(num1, num2) {
     errorState = true;
     return "ERROR";
   } else {
-    return (num1 / num2).toFixed(1);
+    result = num1 / num2;
+    if (result.toString().length > maxCharacters) {
+      result = result.toFixed(maxCharacters - 2);
+    }
+    return result;
   }
 }
