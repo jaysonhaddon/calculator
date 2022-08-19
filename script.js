@@ -15,6 +15,15 @@ let currentData = {
   operator: "",
 };
 
+window.addEventListener("keydown", (e) => {
+  keyPressed = e.key;
+  keyButton = document.querySelector(`button[data-key="${keyPressed}"]`);
+  if (keyButton != null) {
+    keyButton.click();
+    keyButton.focus();
+  }
+});
+
 numBtns.forEach((button) => {
   button.addEventListener("click", () => {
     if (errorState) return;
